@@ -29,7 +29,7 @@ public class Heapsort {
     while (n > 1) {
       v1 = 0;
       v2 = n - 1;
-      Utils.swap(array);
+      Utils.swap(v1, v2, array);
       n -= 1;
       siftDown(array);
     }
@@ -46,12 +46,12 @@ public class Heapsort {
       if ((heap[v1] < heap[(v1 * 2) + 1]) || (heap[v1] < heap[(v1 * 2) + 2])) {
         if (heap[(v1 * 2) + 1] >= heap[(v1 * 2) + 2]) {
           v2 = (v1 * 2) + 1;
-          Utils.swap(heap);
+          Utils.swap(v1, v2, heap);
           v1 = v2;
           siftDown(heap);
         } else if (heap[(v1 * 2) + 1] < heap[(v1 * 2) + 2]) {
           v2 = (v1 * 2) + 2;
-          Utils.swap(heap);
+          Utils.swap(v1, v2, heap);
           v1 = v2;
           siftDown(heap);
         }
@@ -59,7 +59,7 @@ public class Heapsort {
     } else if (((v1 * 2) + 2) == n) {
       if ((heap[v1] < heap[(v1 * 2) + 1])) {
         v2 = (v1 * 2) + 1;
-        Utils.swap(heap);
+        Utils.swap(v1, v2, heap);
         v1 = v2;
         siftDown(heap);
       }
@@ -73,7 +73,7 @@ public class Heapsort {
    */
   private static void siftUp(int[] heap) {
     if (heap[v1] > heap[v2] && v1 != 0) {
-      Utils.swap(heap);
+      Utils.swap(v1, v2, heap);
       v1 = v2;
       v2 = (v2 - 1) / 2;
       siftUp(heap);
