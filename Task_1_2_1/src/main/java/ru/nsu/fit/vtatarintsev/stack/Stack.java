@@ -1,40 +1,81 @@
 package ru.nsu.fit.vtatarintsev.stack;
 
-public class Stack {
+import java.util.EmptyStackException;
 
-  public int size = 5;
-  public int[] stack = new int[size];
-  public int num_elem = 0;
+/**
+ * Implementation of stack.
+ *
+ * @param <T> is type of elements in stack.
+ */
+public class Stack<T> {
 
-  public void push(int elem) {
-    if (num_elem == size) {
+  private int size = 5;
+  @SuppressWarnings("unchecked")
+  private T[] stack = (T[]) new Object[size];
+  private int numElem = 0;
+
+  /**
+   * Method push puts an element on the top of the stack.
+   *
+   * @param elem is element.
+   */
+  @SuppressWarnings("unchecked")
+  public void push(T elem) {
+    if (numElem == size) {
       size *= 2;
-      int[] bigStack = new int[size];
-      System.arraycopy(stack, 0, bigStack, 0, num_elem);
+      T[] bigStack = (T[]) new Object[size];
+      System.arraycopy(stack, 0, bigStack, 0, numElem);
       stack = bigStack;
     }
-    stack[num_elem++] = elem;
+    stack[numElem] = elem;
+    numElem++;
   }
 
-  public void pushStack(int[] addedStack) {
-    for (int i = 0; i < addedStack.length; i++) {
-      push(addedStack[i]);
+  /**
+   * Method pushStack puts all elements from addedStack in stack.
+   *
+   * @param addedStack is stack from which we take elements.
+   */
+  public void pushStack(Stack<T> addedStack) {
+    for (int i = 0; i < addedStack.count(); i++) {
+      push(addedStack.stack[i]);
     }
   }
 
-  public int pop() {
-    return stack[num_elem--];
+  /**
+   * Method pop takes the top element.
+   *
+   * @return element from the top of the stack.
+   */
+  public T pop() {
+    if (numElem == 0) {
+      throw new EmptyStackException();
+    }
+    numElem--;
+    return stack[numElem];
   }
 
-  public int[] popStack(int num) {
-    num_elem -= num;
-    int[] deletedStack = new int[num];
-    System.arraycopy(stack, num_elem, deletedStack, 0, num);
+  /**
+   * Method popStack takes the top num elements of the stack.
+   *
+   * @param num is number elements to take.
+   *
+   * @return stack with num elements.
+   */
+  public Stack<T> popStack(int num) {
+    if (numElem < num) {
+      throw new EmptyStackException();
+    }
+    numElem -= num;
+    Stack<T> deletedStack = new Stack<>();
+    for (int i = numElem; i < (numElem + num); i++) {
+      deletedStack.push(stack[i]);
+    }
     return deletedStack;
   }
 
   public int count() {
-    return num_elem;
+    return numElem;
   }
 }
 
