@@ -5,7 +5,7 @@ name: CI
 # Controls when the workflow will run
 on:
   pull_request:
-    branches: [ "main" ]  
+    branches: [ "main", "task-1-2-2" ]  
   workflow_dispatch:
 
 jobs:
