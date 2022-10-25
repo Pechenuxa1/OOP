@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.nsu.fit.vtatarintsev.heapsort.HeapsortTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2022-09-24T16:49:28" hostname="PC" time="1.061">
+  <properties/>
+  <testcase name="test_1()" classname="ru.nsu.fit.vtatarintsev.heapsort.HeapsortTest" time="0.036"/>
+  <testcase name="test_2()" classname="ru.nsu.fit.vtatarintsev.heapsort.HeapsortTest" time="0.004"/>
+  <testcase name="test_3()" classname="ru.nsu.fit.vtatarintsev.heapsort.HeapsortTest" time="0.003"/>
+  <testcase name="test_4()" classname="ru.nsu.fit.vtatarintsev.heapsort.HeapsortTest" time="0.003"/>
+  <testcase name="test_5()" classname="ru.nsu.fit.vtatarintsev.heapsort.HeapsortTest" time="0.002"/>
+  <testcase name="test_6()" classname="ru.nsu.fit.vtatarintsev.heapsort.HeapsortTest" time="0.996"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
