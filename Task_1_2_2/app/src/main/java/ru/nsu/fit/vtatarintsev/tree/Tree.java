@@ -35,15 +35,17 @@ public class Tree<T> implements Iterable<T> {
     }
   }
 
-  public Tree<T> add(Tree<T> tree, T value) throws NoSuchElementException {
+  public Tree<T> add(Tree<T> tree, T value) {
+    Tree<T> newNode = null;
     if (tree == this) {
       return this.add(value);
     } else {
       for (Tree<T> son : children) {
-        son.add(tree, value);
+        newNode = son.add(tree, value);
+        if (newNode != null) break;
       }
     }
-    throw new NoSuchElementException("Node " + tree + " not found in the " + this);
+    return newNode;
   }
 
   public void delete() {
@@ -77,6 +79,14 @@ public class Tree<T> implements Iterable<T> {
       }
     }
     throw new NoSuchElementException("Node " + tree + " not found in the " + this);
+  }
+
+  public ArrayList<T> getChildrenValues() {
+    ArrayList<T> childrenValues = new ArrayList<>();
+    for (Tree<T> son : this.children) {
+      childrenValues.add(son.value);
+    }
+    return childrenValues;
   }
 
   public Iterator<T> iterator(String type) throws Exception {

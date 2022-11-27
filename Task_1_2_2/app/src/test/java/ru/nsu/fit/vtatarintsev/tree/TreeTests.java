@@ -3,9 +3,9 @@
  */
 package ru.nsu.fit.vtatarintsev.tree;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 class TreeTests {
@@ -15,7 +15,47 @@ class TreeTests {
   void addRoot() {
     Tree<String> treeA = new Tree<>();
     treeA.add("A");
-    assertEquals()
+    assertEquals(treeA.value, "A");
+
+    Tree<String> treeB = new Tree<>("B");
+    assertEquals(treeB.value, "B");
   }
 
+  @Test
+  void addRootChildren() {
+    Tree<String> treeA = new Tree<>("A");
+    treeA.add("B");
+    treeA.add("C");
+    treeA.add("D");
+    assertEquals(treeA.children.size(), 3);
+
+    ArrayList<String> listOfChildren = new ArrayList<>();
+    listOfChildren.add("B");
+    listOfChildren.add("C");
+    listOfChildren.add("D");
+    assertEquals(treeA.getChildrenValues(), listOfChildren);
+  }
+
+  @Test
+  void addOtherNodes() {
+    Tree<String> treeA = new Tree<>("A");                   //               A
+    Tree<String> nodeB = treeA.add("B");                         //              /  \
+    Tree<String> nodeC = treeA.add("C");                         //             B    C
+    treeA.add(nodeB, "D");                                 //           / | \
+    Tree<String> nodeE = treeA.add(nodeB, "E");            //          D  E  F
+    treeA.add(nodeB, "F");                                 //             |
+    Tree<String> nodeG = nodeB.add(nodeE, "G");            //             G
+    Tree<String> nodeH = treeA.add(nodeG, "H");            //             |
+    ArrayList<String> aChildren = new ArrayList<>();            //              H
+    aChildren.add("B");
+    aChildren.add("C");
+    assertEquals(treeA.getChildrenValues(), aChildren);
+
+    ArrayList<String> gChildren = new ArrayList<>();
+    gChildren.add("H");
+    assertEquals(nodeG.getChildrenValues(), gChildren);
+
+    ArrayList<String> hChildren = new ArrayList<>();
+    assertEquals(nodeH.getChildrenValues(), hChildren);
+  }
 }
