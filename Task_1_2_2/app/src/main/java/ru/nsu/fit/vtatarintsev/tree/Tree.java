@@ -1,12 +1,14 @@
 package ru.nsu.fit.vtatarintsev.tree;
 
 import java.util.ArrayList;
+
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public class Tree<T> implements Iterator<T> {
+public class Tree<T> implements Iterable<T> {
 
-  private ArrayList<Tree<T>> children;
-  private T value;
+  public ArrayList<Tree<T>> children;
+  public T value;
   private Tree<T> parent;
 
   public Tree() {
@@ -33,7 +35,7 @@ public class Tree<T> implements Iterator<T> {
     }
   }
 
-  public Tree<T> add(Tree<T> tree, T value) throws Exception {
+  public Tree<T> add(Tree<T> tree, T value) throws NoSuchElementException {
     if (tree == this) {
       return this.add(value);
     } else {
@@ -41,7 +43,7 @@ public class Tree<T> implements Iterator<T> {
         son.add(tree, value);
       }
     }
-    throw new Exception("Node " + tree + " not found in the " + this);
+    throw new NoSuchElementException("Node " + tree + " not found in the " + this);
   }
 
   public void delete() {
@@ -53,7 +55,7 @@ public class Tree<T> implements Iterator<T> {
     }
   }
 
-  public void delete(T value) throws Exception {
+ /* public void delete(T value) throws NoSuchElementException {
     if (this.value == value) {
       this.delete();
       return;
@@ -62,10 +64,10 @@ public class Tree<T> implements Iterator<T> {
         son.delete(value);
       }
     }
-    throw new Exception("Node with value " + value + " not found in the " + this);
-  }
+    throw new NoSuchElementException("Node with value " + value + " not found in the " + this);
+  } */
 
-  public void delete(Tree<T> tree) throws Exception {
+  public void delete(Tree<T> tree) throws NoSuchElementException {
     if (this == tree) {
       this.delete();
       return;
@@ -74,16 +76,20 @@ public class Tree<T> implements Iterator<T> {
         son.delete(tree);
       }
     }
-    throw new Exception("Node " + tree + " not found in the " + this);
+    throw new NoSuchElementException("Node " + tree + " not found in the " + this);
+  }
+
+  public Iterator<T> iterator(String type) throws Exception {
+    if (type == "DFS") {
+      return (Iterator<T>) new TreeIterator<>(this, "DFS");
+    } else if (type == "BFS") {
+      return (Iterator<T>) new TreeIterator<>(this, "BFS");
+    }
+    throw new Exception("No such an iterator" + type);
   }
 
   @Override
-  public boolean hasNext() {
-    return children.size() != 0;
-  }
-
-  @Override
-  public T next() {
-    return null;
+  public Iterator<T> iterator() {
+    return (Iterator<T>) new TreeIterator<>(this, "DFS");
   }
 }
