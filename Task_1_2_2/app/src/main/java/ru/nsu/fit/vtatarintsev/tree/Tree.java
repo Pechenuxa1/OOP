@@ -5,23 +5,29 @@ import java.util.Iterator;
 
 public class Tree<T> implements Iterable<T> {
 
-  public ArrayList<Tree<T>> children;
-  public T value;
+  public enum Type { DFS, BFS }
+
+  private final ArrayList<Tree<T>> children;
+  private T value;
   private Tree<T> parent;
+  public int numOfOperations;
 
   public Tree() {
     this.value = null;
     this.parent = null;
     this.children = new ArrayList<>();
+    this.numOfOperations = 0;
   }
 
   public Tree(T value) {
     this.value = value;
     this.parent = null;
     this.children = new ArrayList<>();
+    this.numOfOperations = 1;
   }
 
   public Tree<T> add(T value) {
+    this.addNumOfOperations();
     if (this.value == null) {
       this.value = value;
       return this;
@@ -33,49 +39,19 @@ public class Tree<T> implements Iterable<T> {
     }
   }
 
-  public Tree<T> add(Tree<T> tree, T value) {
-    Tree<T> newNode = null;
-    if (tree == this) {
-      return this.add(value);
-    } else {
-      for (Tree<T> son : children) {
-        newNode = son.add(tree, value);
-        if (newNode != null) {
-          break;
-        }
-      }
+  private void addNumOfOperations() {
+    this.numOfOperations++;
+    if (this.parent != null) {
+      this.parent.addNumOfOperations();
     }
-    return newNode;
   }
 
   public void delete() {
+    this.addNumOfOperations();
     this.value = null;
     this.parent.children.remove(this);
     this.parent = null;
     this.children.clear();
-  }
-
- /* public void delete(T value) throws NoSuchElementException {
-    if (this.value == value) {
-      this.delete();
-      return;
-    } else {
-      for (Tree<T> son : children) {
-        son.delete(value);
-      }
-    }
-    throw new NoSuchElementException("Node with value " + value + " not found in the " + this);
-  } */
-
-  public void delete(Tree<T> tree) {
-    if (this == tree) {
-    this.delete();
-    return;
-    } else {
-      for (Tree<T> son : children) {
-        son.delete(tree);
-      }
-    }
   }
 
   public ArrayList<T> getChildrenValues() {
@@ -86,17 +62,24 @@ public class Tree<T> implements Iterable<T> {
     return childrenValues;
   }
 
-  public Iterator<T> iterator(String type) throws Exception {
-    if (type == "DFS") {
-      return (Iterator<T>) new TreeIterator<>(this, "DFS");
-    } else if (type == "BFS") {
-      return (Iterator<T>) new TreeIterator<>(this, "BFS");
+  public ArrayList<Tree<T>> getChildrenTrees() {
+    return this.children;
+  }
+
+  public T getValue() {
+    return this.value;
+  }
+
+  public Iterator<T> iterator(Type typeOfIterator) {
+    if (typeOfIterator == Type.DFS) {
+      return new TreeIterator<>(this, Type.DFS);
+    } else {
+      return new TreeIterator<>(this, Type.BFS);
     }
-    throw new Exception("No such an iterator" + type);
   }
 
   @Override
   public Iterator<T> iterator() {
-    return (Iterator<T>) new TreeIterator<>(this, "DFS");
+    return new TreeIterator<>(this, Type.DFS);
   }
 }
