@@ -6,6 +6,7 @@ package ru.nsu.fit.vtatarintsev.tree;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 
 class TreeTests {
@@ -57,5 +58,45 @@ class TreeTests {
 
     ArrayList<String> hChildren = new ArrayList<>();
     assertEquals(nodeH.getChildrenValues(), hChildren);
+  }
+
+  @Test
+  void deleteNodes() {
+    Tree<String> treeA = new Tree<>("A");
+    Tree<String> nodeB = treeA.add("B");
+    nodeB.add(nodeB, "C");
+    nodeB.add(nodeB, "D");
+    assertEquals(nodeB.children.size(), 2);
+
+    nodeB.delete();
+    assertEquals(nodeB.children.size(), 0);
+    assertEquals(treeA.children.size(), 0);
+
+    Tree<String> nodeD = treeA.add("D");
+    Tree<String> nodeE = treeA.add(nodeD, "E");
+    Tree<String> nodeF = treeA.add(nodeD, "F");
+    nodeD.delete(nodeE);
+    assertEquals(nodeD.children.size(), 1);
+
+    //nodeD.delete(nodeF);
+    //assertEquals(nodeD.children.size(), 0);
+  }
+
+  @Test
+  void dfs() {
+    Tree<String> treeA = new Tree<>("A");
+    Tree<String> nodeB = treeA.add("B");
+    Tree<String> nodeC = treeA.add("C");
+    treeA.add(nodeB, "D");
+    Tree<String> nodeE = treeA.add(nodeB, "E");
+    treeA.add(nodeB, "F");
+    Tree<String> nodeG = nodeB.add(nodeE, "G");
+    Tree<String> nodeH = treeA.add(nodeG, "H");
+    String[] dfsArray = {"A", "B", "D", "E", "G", "H", "F", "C"};
+    Iterator<String> dfsIterator = treeA.iterator();
+    for(String element : dfsArray) {
+      assertEquals(dfsIterator.hasNext(), true);
+      assertEquals(dfsIterator.next(), element);
+    }
   }
 }

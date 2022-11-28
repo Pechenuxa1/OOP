@@ -1,9 +1,7 @@
 package ru.nsu.fit.vtatarintsev.tree;
 
 import java.util.ArrayList;
-
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 public class Tree<T> implements Iterable<T> {
 
@@ -42,7 +40,9 @@ public class Tree<T> implements Iterable<T> {
     } else {
       for (Tree<T> son : children) {
         newNode = son.add(tree, value);
-        if (newNode != null) break;
+        if (newNode != null) {
+          break;
+        }
       }
     }
     return newNode;
@@ -50,11 +50,9 @@ public class Tree<T> implements Iterable<T> {
 
   public void delete() {
     this.value = null;
+    this.parent.children.remove(this);
     this.parent = null;
-    for (Tree<T> son : children) {
-      son.delete();
-      children.clear();
-    }
+    this.children.clear();
   }
 
  /* public void delete(T value) throws NoSuchElementException {
@@ -69,16 +67,15 @@ public class Tree<T> implements Iterable<T> {
     throw new NoSuchElementException("Node with value " + value + " not found in the " + this);
   } */
 
-  public void delete(Tree<T> tree) throws NoSuchElementException {
+  public void delete(Tree<T> tree) {
     if (this == tree) {
-      this.delete();
-      return;
+    this.delete();
+    return;
     } else {
       for (Tree<T> son : children) {
         son.delete(tree);
       }
     }
-    throw new NoSuchElementException("Node " + tree + " not found in the " + this);
   }
 
   public ArrayList<T> getChildrenValues() {
