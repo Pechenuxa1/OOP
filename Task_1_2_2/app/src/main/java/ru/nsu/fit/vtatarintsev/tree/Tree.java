@@ -5,29 +5,29 @@ import java.util.Iterator;
 
 public class Tree<T> implements Iterable<T> {
 
-  public enum Type { DFS, BFS }
+  public enum Type {DFS, BFS}
 
   private final ArrayList<Tree<T>> children;
   private T value;
   private Tree<T> parent;
-  public int numOfOperations;
+  public int numOfNodes;
 
   public Tree() {
     this.value = null;
     this.parent = null;
     this.children = new ArrayList<>();
-    this.numOfOperations = 0;
+    this.numOfNodes = 0;
   }
 
   public Tree(T value) {
     this.value = value;
     this.parent = null;
     this.children = new ArrayList<>();
-    this.numOfOperations = 1;
+    this.numOfNodes = 1;
   }
 
   public Tree<T> add(T value) {
-    this.addNumOfOperations();
+    this.addNumOfNodes();
     if (this.value == null) {
       this.value = value;
       return this;
@@ -39,19 +39,30 @@ public class Tree<T> implements Iterable<T> {
     }
   }
 
-  private void addNumOfOperations() {
-    this.numOfOperations++;
+  public void delete() {
+    this.deleteNumOfNodes();
+    this.value = null;
+    for (Tree<T> son : children) {
+      son.parent = this.parent;
+      this.parent.children.add(son);
+    }
+    this.parent.children.remove(this);
+    this.children.clear();
+    this.parent = null;
+  }
+
+  private void addNumOfNodes() {
+    this.numOfNodes++;
     if (this.parent != null) {
-      this.parent.addNumOfOperations();
+      this.parent.addNumOfNodes();
     }
   }
 
-  public void delete() {
-    this.addNumOfOperations();
-    this.value = null;
-    this.parent.children.remove(this);
-    this.parent = null;
-    this.children.clear();
+  private void deleteNumOfNodes() {
+    this.numOfNodes--;
+    if (this.parent != null) {
+      this.parent.deleteNumOfNodes();
+    }
   }
 
   public ArrayList<T> getChildrenValues() {

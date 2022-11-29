@@ -9,20 +9,20 @@ public class TreeIterator<T> implements Iterator<T> {
 
   private final ArrayList<Tree<T>> iteratedNodes;
   private final Tree.Type typeOfIterator;
-  private final Tree<T> node;
-  private final int numOfOperations;
+  private final Tree<T> root;
+  private final int finalNumOfNodes;
 
   public TreeIterator(Tree<T> tree, Tree.Type typeOfIterator) {
     iteratedNodes = new ArrayList<>();
     this.typeOfIterator = typeOfIterator;
     iteratedNodes.add(tree);
-    this.node = tree;
-    this.numOfOperations = tree.numOfOperations;
+    this.root = tree;
+    this.finalNumOfNodes = tree.numOfNodes;
   }
 
   @Override
   public boolean hasNext() {
-    if (this.numOfOperations < node.numOfOperations) {
+    if (this.finalNumOfNodes != root.numOfNodes) {
       throw new ConcurrentModificationException();
     }
     return iteratedNodes.size() != 0;
@@ -30,7 +30,7 @@ public class TreeIterator<T> implements Iterator<T> {
 
   @Override
   public T next() {
-    if (this.numOfOperations < node.numOfOperations) {
+    if (this.finalNumOfNodes != root.numOfNodes) {
       throw new ConcurrentModificationException();
     }
     Tree<T> node = iteratedNodes.get(0);

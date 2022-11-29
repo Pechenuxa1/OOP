@@ -74,13 +74,14 @@ class TreeTests {
 
     nodeB.delete();
     assertEquals(nodeB.getChildrenTrees().size(), 0);
-    assertEquals(treeA.getChildrenTrees().size(), 0);
+    assertEquals(treeA.getChildrenTrees().size(), 2);
 
     Tree<String> nodeD = treeA.add("D");
     Tree<String> nodeE = nodeD.add("E");
     Tree<String> nodeF = nodeD.add("F");
     nodeE.delete();
     assertEquals(nodeD.getChildrenTrees().size(), 1);
+    assertEquals(treeA.numOfNodes, 5);
 
     nodeF.delete();
     assertEquals(nodeD.getChildrenTrees().size(), 0);
@@ -134,11 +135,15 @@ class TreeTests {
     nodeG.add("H");
     Iterator<String> bfsIterator = treeA.iterator(Type.BFS);
     treeA.add("I");
+    assertEquals(treeA.numOfNodes, 9);
     assertThrows(ConcurrentModificationException.class, bfsIterator::hasNext);
     assertThrows(ConcurrentModificationException.class, bfsIterator::next);
 
     Iterator<String> dfsIterator = nodeB.iterator(Type.DFS);
+    assertEquals(nodeE.numOfNodes, 3);
     nodeG.delete();
+    assertEquals(treeA.numOfNodes, 8);
+    assertEquals(nodeE.numOfNodes, 2);
     assertThrows(ConcurrentModificationException.class, dfsIterator::hasNext);
     assertThrows(ConcurrentModificationException.class, dfsIterator::next);
   }
