@@ -5,6 +5,11 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import ru.nsu.fit.vtatarintsev.tree.Tree.Type;
 
+/**
+ * Iterator for tree structure.
+ *
+ * @param <T> type of objects in the tree.
+ */
 public class TreeIterator<T> implements Iterator<T> {
 
   private final ArrayList<Tree<T>> iteratedNodes;
@@ -12,6 +17,12 @@ public class TreeIterator<T> implements Iterator<T> {
   private final Tree<T> root;
   private final int finalNumOfNodes;
 
+  /**
+   * Builds iterator and adds tree node in iteratedNodes.
+   *
+   * @param tree           is root node.
+   * @param typeOfIterator is DFS or BFS.
+   */
   public TreeIterator(Tree<T> tree, Tree.Type typeOfIterator) {
     iteratedNodes = new ArrayList<>();
     this.typeOfIterator = typeOfIterator;
