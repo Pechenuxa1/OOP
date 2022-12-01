@@ -3,7 +3,6 @@ package ru.nsu.fit.vtatarintsev.tree;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import ru.nsu.fit.vtatarintsev.tree.Tree.Type;
 
 /**
  * Iterator for tree structure.
@@ -13,7 +12,7 @@ import ru.nsu.fit.vtatarintsev.tree.Tree.Type;
 public class TreeIterator<T> implements Iterator<T> {
 
   private final ArrayList<Tree<T>> iteratedNodes;
-  private final Tree.Type typeOfIterator;
+  private final TypeOfIterator.Type typeOfIterator;
   private final Tree<T> root;
   private final int finalNumOfNodes;
 
@@ -23,7 +22,7 @@ public class TreeIterator<T> implements Iterator<T> {
    * @param tree           is root node.
    * @param typeOfIterator is DFS or BFS.
    */
-  public TreeIterator(Tree<T> tree, Tree.Type typeOfIterator) {
+  public TreeIterator(Tree<T> tree, TypeOfIterator.Type typeOfIterator) {
     iteratedNodes = new ArrayList<>();
     this.typeOfIterator = typeOfIterator;
     iteratedNodes.add(tree);
@@ -45,10 +44,10 @@ public class TreeIterator<T> implements Iterator<T> {
       throw new ConcurrentModificationException();
     }
     Tree<T> node = iteratedNodes.get(0);
-    if (typeOfIterator == Type.DFS) {
+    if (typeOfIterator == TypeOfIterator.Type.DFS) {
       iteratedNodes.remove(0);
       iteratedNodes.addAll(0, node.getChildrenTrees());
-    } else if (typeOfIterator == Type.BFS) {
+    } else if (typeOfIterator == TypeOfIterator.Type.BFS) {
       iteratedNodes.remove(0);
       iteratedNodes.addAll(node.getChildrenTrees());
     }

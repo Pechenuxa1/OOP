@@ -10,14 +10,6 @@ import java.util.Iterator;
  */
 public class Tree<T> implements Iterable<T> {
 
-  /**
-   * Type of iterator.
-   */
-  public enum Type {
-    DFS,
-    BFS
-  }
-
   private final ArrayList<Tree<T>> children;
   private T value;
   private Tree<T> parent;
@@ -141,16 +133,16 @@ public class Tree<T> implements Iterable<T> {
    * @param typeOfIterator is DFS or BFS.
    * @return type of iterator.
    */
-  public Iterator<T> iterator(Type typeOfIterator) {
-    if (typeOfIterator == Type.DFS) {
-      return new TreeIterator<>(this, Type.DFS);
+  public Iterator<T> iterator(TypeOfIterator.Type typeOfIterator) {
+    if (typeOfIterator == TypeOfIterator.Type.DFS) {
+      return new TreeIterator<>(this, TypeOfIterator.Type.DFS);
     } else {
-      return new TreeIterator<>(this, Type.BFS);
+      return new TreeIterator<>(this, TypeOfIterator.Type.BFS);
     }
   }
 
   @Override
   public Iterator<T> iterator() {
-    return new TreeIterator<>(this, Type.DFS);
+    return new TreeIterator<>(this, TypeOfIterator.Type.DFS);
   }
 }

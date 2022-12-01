@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import org.junit.jupiter.api.Test;
-import ru.nsu.fit.vtatarintsev.tree.Tree.Type;
+import ru.nsu.fit.vtatarintsev.tree.TypeOfIterator.Type;
 
 class TreeTests {
 
