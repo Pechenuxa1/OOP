@@ -5,9 +5,9 @@ package ru.nsu.fit.vtatarintsev.substring;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
@@ -17,34 +17,47 @@ class FindingSubstringTest {
   void stringTest() throws IOException {
     String fileName = "./src/test/resources/string.txt";
     String subString = "aabaa";
-    int[] beginning_array = {0, 3, 8, 11};
-    ArrayList<Integer> beginning_list = new ArrayList<>();
-    for (int j : beginning_array) {
-      beginning_list.add(j);
+    int[] beginningArray = {0, 3, 8, 11};
+    ArrayList<Integer> beginningList = new ArrayList<>();
+    for (int j : beginningArray) {
+      beginningList.add(j);
     }
-    Reader fileReader = new FileReader(fileName);
-    assertEquals(beginning_list, Substring.findingSubstring(subString, fileReader));
+    assertEquals(beginningList, Substring.findingSubstring(subString,
+        new BufferedReader(new FileReader(fileName))));
   }
 
   @Test
   void noSubstringTest() throws IOException {
     String fileName = "./src/test/resources/string.txt";
     String subString = "abb";
-    ArrayList<Integer> beginning_list = new ArrayList<>();
-    Reader fileReader = new FileReader(fileName);
-    assertEquals(beginning_list, Substring.findingSubstring(subString, fileReader));
+    ArrayList<Integer> beginningList = new ArrayList<>();
+    assertEquals(beginningList, Substring.findingSubstring(subString,
+        new BufferedReader(new FileReader(fileName))));
   }
 
   @Test
   void someStringTest() throws IOException {
     String fileName = "./src/test/resources/someString.txt";
     String subString = "ABCDE";
-    int[] beginning_array = {3, 14};
-    ArrayList<Integer> beginning_list = new ArrayList<>();
-    for (int j : beginning_array) {
-      beginning_list.add(j);
+    int[] beginningArray = {16};
+    ArrayList<Integer> beginningList = new ArrayList<>();
+    for (int j : beginningArray) {
+      beginningList.add(j);
     }
-    Reader fileReader = new FileReader(fileName);
-    assertEquals(beginning_list, Substring.findingSubstring(subString, fileReader));
+    assertEquals(beginningList, Substring.findingSubstring(subString,
+        new BufferedReader(new FileReader(fileName))));
+  }
+
+  @Test
+  void utf8Test() throws IOException {
+    String fileName = "./src/test/resources/russianText.txt";
+    String subString = "е";
+    int[] beginningArray = {2, 7, 10, 29};
+    ArrayList<Integer> beginningList = new ArrayList<>();
+    for (int j : beginningArray) {
+      beginningList.add(j);
+    }
+    assertEquals(beginningList, Substring.findingSubstring(subString,
+        new BufferedReader(new FileReader(fileName))));
   }
 }

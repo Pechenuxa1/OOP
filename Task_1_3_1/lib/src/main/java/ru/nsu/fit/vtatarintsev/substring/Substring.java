@@ -17,59 +17,47 @@ public class Substring {
   /**
    * Finding a substring by Knuth–Morris–Pratt algorithm.
    *
-   * @param substring is a search pattern.
+   * @param substring  is a search pattern.
    * @param fileReader is a given file reader.
-   *
    * @return array of indexes of initial entries of substring in the text.
    */
-  public static ArrayList<Integer> findingSubstring(String substring, Reader fileReader) {
-    ArrayList<Integer> beginningSubstring = null;
-    try (fileReader) {
-      beginningSubstring = new ArrayList<>();
-      int textElementCounter = 0;
-      char[] buffer = new char[substring.length()];
-      int[] prefixFunctionSubstring = new int[substring.length()];
-      prefix_function_finding(0, 1, substring, prefixFunctionSubstring);
-      int lengthBuffer;
-      int l = 0;
-      while ((lengthBuffer = fileReader.read(buffer)) > 0) {
-        if (lengthBuffer < buffer.length) {
-          buffer = Arrays.copyOf(buffer, lengthBuffer);
-        }
-        // main_buffer.addAll(inter_buffer);
-        int k = 0;
-        while (k != buffer.length) {
-          if (buffer[k] == '\r' || buffer[k] == '\n') {
-            k++;
-            continue;
+  public static ArrayList<Integer> findingSubstring(String substring, Reader fileReader)
+      throws IOException {
+    ArrayList<Integer> beginningSubstring = new ArrayList<>();
+    int textElementCounter = 0;
+    char[] buffer = new char[substring.length()];
+    int[] prefixFunctionSubstring = new int[substring.length()];
+    prefixFunctionFinding(0, 1, substring, prefixFunctionSubstring);
+    int lengthBuffer;
+    int l = 0;
+    while ((lengthBuffer = fileReader.read(buffer)) > 0) {
+      if (lengthBuffer < buffer.length) {
+        buffer = Arrays.copyOf(buffer, lengthBuffer);
+      }
+      int k = 0;
+      while (k != buffer.length) {
+        if (substring.charAt(l) == buffer[k]) {
+          k++;
+          l++;
+          textElementCounter++;
+          if (l == substring.length()) {
+            beginningSubstring.add(textElementCounter - l);
+            l = prefixFunctionSubstring[l - 1];
           }
-          if (substring.charAt(l) == buffer[k]) {
+        } else {
+          if (l == 0) {
             k++;
-            l++;
             textElementCounter++;
-            if (l == substring.length()) {
-              beginningSubstring.add(textElementCounter - l);
-              l = prefixFunctionSubstring[l - 1];
-            }
           } else {
-            if (l == 0) {
-              k++;
-              textElementCounter++;
-            } else {
-              l = prefixFunctionSubstring[l - 1];
-            }
+            l = prefixFunctionSubstring[l - 1];
           }
         }
       }
-      fileReader.close();
-      System.out.println(beginningSubstring);
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
     }
     return beginningSubstring;
   }
 
-  private static void prefix_function_finding(int j, int i, String substring,
+  private static void prefixFunctionFinding(int j, int i, String substring,
       int[] prefixFunctionSubstring) {
     prefixFunctionSubstring[0] = 0;
     while (i != substring.length()) {
