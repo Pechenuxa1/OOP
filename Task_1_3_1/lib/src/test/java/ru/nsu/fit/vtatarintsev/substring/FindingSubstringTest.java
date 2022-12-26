@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
@@ -25,8 +26,12 @@ class FindingSubstringTest {
     for (int j : beginningArray) {
       beginningList.add(j);
     }
-    assertEquals(beginningList, Substring.findingSubstring(subString,
-        new BufferedReader(new FileReader(fileName))));
+    try (Reader fileReader = new BufferedReader(new FileReader(fileName))) {
+      assertEquals(beginningList, Substring.findingSubstring(subString,
+          fileReader));
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   @Test
@@ -34,8 +39,12 @@ class FindingSubstringTest {
     String fileName = "./src/test/resources/string.txt";
     String subString = "abb";
     ArrayList<Integer> beginningList = new ArrayList<>();
-    assertEquals(beginningList, Substring.findingSubstring(subString,
-        new BufferedReader(new FileReader(fileName))));
+    try (Reader fileReader = new BufferedReader(new FileReader(fileName))) {
+      assertEquals(beginningList, Substring.findingSubstring(subString,
+          fileReader));
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   @Test
@@ -47,8 +56,12 @@ class FindingSubstringTest {
     for (int j : beginningArray) {
       beginningList.add(j);
     }
-    assertEquals(beginningList, Substring.findingSubstring(subString,
-        new BufferedReader(new FileReader(fileName))));
+    try (Reader fileReader = new BufferedReader(new FileReader(fileName))) {
+      assertEquals(beginningList, Substring.findingSubstring(subString,
+          fileReader));
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   @Test
@@ -60,7 +73,14 @@ class FindingSubstringTest {
     for (int j : beginningArray) {
       beginningList.add(j);
     }
-    assertEquals(beginningList, Substring.findingSubstring(subString,
-        new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))));
+    try (Reader fileReader =
+        new BufferedReader(
+            new InputStreamReader(
+                new FileInputStream(fileName), StandardCharsets.UTF_8))) {
+      assertEquals(beginningList, Substring.findingSubstring(subString,
+          fileReader));
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+    }
   }
 }
