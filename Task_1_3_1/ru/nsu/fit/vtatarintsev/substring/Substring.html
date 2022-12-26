@@ -232,7 +232,8 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>findingSubstring</h4>
 <pre class="methodSignature">public static&nbsp;java.util.ArrayList&lt;java.lang.Integer&gt;&nbsp;findingSubstring&#8203;(java.lang.String&nbsp;substring,
-                                                                      java.io.Reader&nbsp;fileReader)</pre>
+                                                                      java.io.Reader&nbsp;fileReader)
+                                                               throws java.io.IOException</pre>
 <div class="block">Finding a substring by Knuth–Morris–Pratt algorithm.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -240,6 +241,8 @@ extends java.lang.Object</pre>
 <dd><code>fileReader</code> - is a given file reader.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>array of indexes of initial entries of substring in the text.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.io.IOException</code></dd>
 </dl>
 </li>
 </ul>
