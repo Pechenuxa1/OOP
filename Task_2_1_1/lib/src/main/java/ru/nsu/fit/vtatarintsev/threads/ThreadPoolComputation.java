@@ -1,37 +1,37 @@
 package ru.nsu.fit.vtatarintsev.threads;
 
 import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 public class ThreadPoolComputation {
 
   int numOfThreads;
-  static ExecutorService service;
-  static ArrayList<Callable<Boolean>> tasks = new ArrayList<>();
-  static BlockingQueue<Future<Boolean>> results;
+  ExecutorService service;
+  FutureTask<Boolean>[] futureTasks;
 
   public ThreadPoolComputation(int numOfThreads) {
     this.numOfThreads = numOfThreads;
     service = Executors.newFixedThreadPool(numOfThreads);
   }
 
+  @SuppressWarnings("unchecked")
   public boolean isNonPrimeNumber(ArrayList<Integer> numbers)
       throws InterruptedException, ExecutionException {
-    results = new ArrayBlockingQueue<>(numbers.size());
+    futureTasks = new FutureTask[numbers.size()];
     boolean nonPrime = false;
-    for (Integer number : numbers) {
-      tasks.add(() -> !PrimeNumberChecker.isPrime(number));
+    for (int j = 0; j < futureTasks.length; j++) {
+      int finalJ = j;
+      Callable<Boolean> task = () -> !PrimeNumberChecker.isPrime(numbers.get(finalJ));
+      futureTasks[finalJ] = new FutureTask<>(task);
     }
     Thread taskManager = new Thread(new TaskManager());
     taskManager.start();
-    for (Future<Boolean> result : results) {
-      if(result.get()) {
+    for (FutureTask<Boolean> futureTask : futureTasks) {
+      if (futureTask.get()) {
         nonPrime = true;
         break;
       }
@@ -41,19 +41,15 @@ public class ThreadPoolComputation {
     return nonPrime;
   }
 
-  private static class TaskManager implements Runnable {
+  private class TaskManager implements Runnable {
 
     @Override
     public void run() {
-      for (Callable<Boolean> task : tasks) {
-        try {
-          if(Thread.currentThread().isInterrupted()) {
-            break;
-          }
-          results.put(service.submit(task));
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+      for (FutureTask<Boolean> futureTask : futureTasks) {
+        if (Thread.currentThread().isInterrupted()) {
+          break;
         }
+        service.submit(futureTask);
       }
     }
   }
