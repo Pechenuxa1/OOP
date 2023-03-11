@@ -33,8 +33,8 @@ public class MultiThreadedComputation {
     Thread taskManager = new Thread(new TaskManager(numbers));
     taskManager.start();
     ArrayList<Thread> threads = new ArrayList<>();
-    for (int i = 0; i < numOfThreads; i++) {
-      Thread thread = new Thread(new Worker(i));
+    for (int idThread = 0; idThread < numOfThreads; idThread++) {
+      Thread thread = new Thread(new Worker(idThread));
       threads.add(thread);
       thread.start();
     }
@@ -52,10 +52,10 @@ public class MultiThreadedComputation {
 
   private class Worker implements Runnable {
 
-    int i;
+    int idThread;
 
-    private Worker(int i) {
-      this.i = i;
+    private Worker(int idThread) {
+      this.idThread = idThread;
     }
 
     @Override
@@ -63,12 +63,12 @@ public class MultiThreadedComputation {
       Callable<Boolean> task;
       while (!Thread.currentThread().isInterrupted()) {
         try {
-          if (tasks[i].isEmpty()) {
+          if (tasks[idThread].isEmpty()) {
             synchronized (monitor) {
               monitor.notify();
             }
           }
-          task = tasks[i].take();
+          task = tasks[idThread].take();
           results.put(task.call());
         } catch (Exception ignored) {
         }
@@ -91,12 +91,12 @@ public class MultiThreadedComputation {
         while (j != numbers.size()) {
           synchronized (monitor) {
             monitor.wait();
-            for (int i = 0; i < numOfThreads; i++) {
+            for (int idThread = 0; idThread < numOfThreads; idThread++) {
               if (j == numbers.size()) {
                 break;
               }
               int finalJ = j;
-              tasks[i].put(() -> !PrimeNumberChecker.isPrime(numbers.get(finalJ)));
+              tasks[idThread].put(() -> !PrimeNumberChecker.isPrime(numbers.get(finalJ)));
               j++;
             }
           }
