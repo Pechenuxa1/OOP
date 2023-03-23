@@ -59,14 +59,15 @@ public class MultiThreadedComputation {
     @Override
     public void run() {
       while (!Thread.currentThread().isInterrupted()) {
-        try {
-          if (tasks[idThread].isEmpty()) {
-            synchronized (monitor) {
-              monitor.notifyAll();
-            }
+        if (tasks[idThread].isEmpty()) {
+          synchronized (monitor) {
+            monitor.notifyAll();
           }
+        }
+        try {
           tasks[idThread].take().run();
-        } catch (Exception ignored) {
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
         }
       }
     }
