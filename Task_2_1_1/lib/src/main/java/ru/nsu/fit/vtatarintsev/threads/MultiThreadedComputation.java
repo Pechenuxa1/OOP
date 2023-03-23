@@ -2,7 +2,6 @@ package ru.nsu.fit.vtatarintsev.threads;
 
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -11,8 +10,8 @@ public class MultiThreadedComputation {
 
   int numOfThreads;
   final Object monitor = new Object();
-  ArrayBlockingQueue<Callable<Boolean>>[] tasks;
-  BlockingQueue<Boolean> results;
+  ArrayBlockingQueue<Runnable>[] tasks;
+  FutureTask<Boolean>[] futureTasks;
 
   @SuppressWarnings("unchecked")
   public MultiThreadedComputation(int numOfThreads) {
@@ -20,16 +19,14 @@ public class MultiThreadedComputation {
     tasks = new ArrayBlockingQueue[numOfThreads];
   }
 
+  @SuppressWarnings("unchecked")
   public boolean isNonPrimeNumber(ArrayList<Integer> numbers)
       throws InterruptedException, ExecutionException {
     boolean nonPrime = false;
-    results = new ArrayBlockingQueue<>(numbers.size());
     for (int i = 0; i < tasks.length; i++) {
       tasks[i] = new ArrayBlockingQueue<>(numbers.size());
     }
-    //FutureTask<Boolean> futureTask = new FutureTask<>(() -> !PrimeNumberChecker.isPrime(numbers.get(9)));
-    //futureTask.run();
-    //nonPrime = futureTask.get();
+    futureTasks = new FutureTask[numbers.size()];
     Thread taskManager = new Thread(new TaskManager(numbers));
     taskManager.start();
     ArrayList<Thread> threads = new ArrayList<>();
@@ -38,8 +35,9 @@ public class MultiThreadedComputation {
       threads.add(thread);
       thread.start();
     }
-    for (int j = 0; j < numbers.size(); j++) {
-      if (results.take()) {
+    taskManager.join();
+    for (int i = 0; i < numbers.size(); i++) {
+      if (futureTasks[i].get()) {
         nonPrime = true;
         break;
       }
@@ -60,16 +58,14 @@ public class MultiThreadedComputation {
 
     @Override
     public void run() {
-      Callable<Boolean> task;
       while (!Thread.currentThread().isInterrupted()) {
         try {
           if (tasks[idThread].isEmpty()) {
             synchronized (monitor) {
-              monitor.notify();
+              monitor.notifyAll();
             }
           }
-          task = tasks[idThread].take();
-          results.put(task.call());
+          tasks[idThread].take().run();
         } catch (Exception ignored) {
         }
       }
@@ -96,7 +92,9 @@ public class MultiThreadedComputation {
                 break;
               }
               int finalJ = j;
-              tasks[idThread].put(() -> !PrimeNumberChecker.isPrime(numbers.get(finalJ)));
+              futureTasks[finalJ] = new FutureTask<>(
+                  () -> !PrimeNumberChecker.isPrime(numbers.get(finalJ)));
+              tasks[idThread].put(futureTasks[finalJ]);
               j++;
             }
           }
