@@ -27,7 +27,8 @@ public class MultiThreadedComputation {
       tasks[i] = new ArrayBlockingQueue<>(numbers.size());
     }
     futureTasks = new FutureTask[numbers.size()];
-    Thread taskManager = new Thread(new TaskManager(numbers));
+    Thread taskManager = new Thread(new TaskManager(numbers, numOfThreads,
+        futureTasks, tasks, monitor));
     taskManager.start();
     ArrayList<Thread> threads = new ArrayList<>();
     for (int idThread = 0; idThread < numOfThreads; idThread++) {
@@ -48,11 +49,11 @@ public class MultiThreadedComputation {
     return nonPrime;
   }
 
-  private class Worker implements Runnable {
+  public class Worker implements Runnable {
 
     int idThread;
 
-    private Worker(int idThread) {
+    public Worker(int idThread) {
       this.idThread = idThread;
     }
 
@@ -69,39 +70,6 @@ public class MultiThreadedComputation {
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
         }
-      }
-    }
-  }
-
-  private class TaskManager implements Runnable {
-
-    ArrayList<Integer> numbers;
-
-    private TaskManager(ArrayList<Integer> numbers) {
-      this.numbers = numbers;
-    }
-
-    @Override
-    public void run() {
-      try {
-        int j = 0;
-        while (j != numbers.size()) {
-          synchronized (monitor) {
-            monitor.wait();
-            for (int idThread = 0; idThread < numOfThreads; idThread++) {
-              if (j == numbers.size()) {
-                break;
-              }
-              int finalJ = j;
-              futureTasks[finalJ] = new FutureTask<>(
-                  () -> !PrimeNumberChecker.isPrime(numbers.get(finalJ)));
-              tasks[idThread].put(futureTasks[finalJ]);
-              j++;
-            }
-          }
-        }
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
       }
     }
   }

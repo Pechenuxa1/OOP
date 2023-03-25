@@ -18,8 +18,8 @@ class SearchNonPrimeNumberTest {
     ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(6997901, 6997927, 6997937,
         6997967, 6998009, 6998029, 6998039, 6998051, 6998053));
     assertFalse(SingleThreadedComputation.isNonPrimeNumber(arrayList));
-    MultiThreadedComputation multiThreadedComputationcomputation = new MultiThreadedComputation(2);
-    assertFalse(multiThreadedComputationcomputation.isNonPrimeNumber(arrayList));
+    MultiThreadedComputation multiThreadedComputation = new MultiThreadedComputation(2);
+    assertFalse(multiThreadedComputation.isNonPrimeNumber(arrayList));
     ThreadPoolComputation threadPoolComputation = new ThreadPoolComputation(2);
     assertFalse(threadPoolComputation.isNonPrimeNumber(arrayList));
     ParallelStreamComputation parallelStreamComputation = new ParallelStreamComputation();
@@ -31,8 +31,8 @@ class SearchNonPrimeNumberTest {
     ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(6997901, 6997927, 6997937,
         6997967, 6998009, 6998029, 6998039, 6998051, 6998053, 4));
     assertTrue(SingleThreadedComputation.isNonPrimeNumber(arrayList));
-    MultiThreadedComputation multiThreadedComputationcomputation = new MultiThreadedComputation(2);
-    assertTrue(multiThreadedComputationcomputation.isNonPrimeNumber(arrayList));
+    MultiThreadedComputation multiThreadedComputation = new MultiThreadedComputation(2);
+    assertTrue(multiThreadedComputation.isNonPrimeNumber(arrayList));
     ThreadPoolComputation threadPoolComputation = new ThreadPoolComputation(2);
     assertTrue(threadPoolComputation.isNonPrimeNumber(arrayList));
     ParallelStreamComputation parallelStreamComputation = new ParallelStreamComputation();
@@ -43,8 +43,8 @@ class SearchNonPrimeNumberTest {
   void nonPrimeNumbersTest() throws ExecutionException, InterruptedException {
     ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(4, 6, 8));
     assertTrue(SingleThreadedComputation.isNonPrimeNumber(arrayList));
-    MultiThreadedComputation multiThreadedComputationcomputation = new MultiThreadedComputation(2);
-    assertTrue(multiThreadedComputationcomputation.isNonPrimeNumber(arrayList));
+    MultiThreadedComputation multiThreadedComputation = new MultiThreadedComputation(2);
+    assertTrue(multiThreadedComputation.isNonPrimeNumber(arrayList));
     ThreadPoolComputation threadPoolComputation = new ThreadPoolComputation(2);
     assertTrue(threadPoolComputation.isNonPrimeNumber(arrayList));
     ParallelStreamComputation parallelStreamComputation = new ParallelStreamComputation();
