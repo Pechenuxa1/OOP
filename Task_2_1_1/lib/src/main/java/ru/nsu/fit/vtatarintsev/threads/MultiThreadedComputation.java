@@ -5,73 +5,46 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class MultiThreadedComputation {
 
   int numOfThreads;
   final Object monitor = new Object();
-  ArrayBlockingQueue<Runnable>[] tasks;
-  FutureTask<Boolean>[] futureTasks;
+  LinkedBlockingQueue<Runnable>[] tasks;
+  Thread taskManager;
+  ArrayList<Thread> threads;
+  LinkedBlockingQueue<Runnable> futureTasks = new LinkedBlockingQueue<>();
 
   @SuppressWarnings("unchecked")
   public MultiThreadedComputation(int numOfThreads) {
     this.numOfThreads = numOfThreads;
-    tasks = new ArrayBlockingQueue[numOfThreads];
+    tasks = new LinkedBlockingQueue[numOfThreads];
+    for (int i = 0; i < tasks.length; i++) {
+      tasks[i] = new LinkedBlockingQueue<>();
+    }
   }
 
-  @SuppressWarnings("unchecked")
-  public boolean isNonPrimeNumber(ArrayList<Integer> numbers)
-      throws InterruptedException, ExecutionException {
-    boolean nonPrime = false;
-    for (int i = 0; i < tasks.length; i++) {
-      tasks[i] = new ArrayBlockingQueue<>(numbers.size());
-    }
-    futureTasks = new FutureTask[numbers.size()];
-    Thread taskManager = new Thread(new TaskManager(numbers, numOfThreads,
-        futureTasks, tasks, monitor));
+  public void start() {
+    taskManager = new Thread(new TaskManager(futureTasks, tasks, monitor));
     taskManager.start();
-    ArrayList<Thread> threads = new ArrayList<>();
+    threads = new ArrayList<>();
     for (int idThread = 0; idThread < numOfThreads; idThread++) {
-      Thread thread = new Thread(new Worker(idThread));
+      Thread thread = new Thread(new Worker(idThread, tasks, monitor));
       threads.add(thread);
       thread.start();
     }
-    taskManager.join();
-    for (int i = 0; i < numbers.size(); i++) {
-      if (futureTasks[i].get()) {
-        nonPrime = true;
-        break;
-      }
-    }
+  }
+
+  public void end() {
+    taskManager.interrupt();
     for (Thread thread : threads) {
       thread.interrupt();
     }
-    return nonPrime;
   }
 
-  public class Worker implements Runnable {
-
-    int idThread;
-
-    public Worker(int idThread) {
-      this.idThread = idThread;
-    }
-
-    @Override
-    public void run() {
-      while (!Thread.currentThread().isInterrupted()) {
-        if (tasks[idThread].isEmpty()) {
-          synchronized (monitor) {
-            monitor.notifyAll();
-          }
-        }
-        try {
-          tasks[idThread].take().run();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-      }
-    }
+  public void execute(Runnable task) {
+    futureTasks.add(task);
   }
 }
 

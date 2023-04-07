@@ -1,21 +1,15 @@
 package ru.nsu.fit.vtatarintsev.threads;
 
-import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TaskManager implements Runnable {
 
-  ArrayList<Integer> numbers;
-  int numOfThreads;
-  FutureTask<Boolean>[] futureTasks;
-  ArrayBlockingQueue<Runnable>[] tasks;
+  LinkedBlockingQueue<Runnable>[] tasks;
   final Object monitor;
+  LinkedBlockingQueue<Runnable> futureTasks;
 
-  public TaskManager(ArrayList<Integer> numbers, int numOfThreads,
-      FutureTask<Boolean>[] futureTasks, ArrayBlockingQueue<Runnable>[] tasks, Object monitor) {
-    this.numbers = numbers;
-    this.numOfThreads = numOfThreads;
+  public TaskManager(LinkedBlockingQueue<Runnable> futureTasks,
+      LinkedBlockingQueue<Runnable>[] tasks, Object monitor) {
     this.futureTasks = futureTasks;
     this.tasks = tasks;
     this.monitor = monitor;
@@ -24,24 +18,19 @@ public class TaskManager implements Runnable {
   @Override
   public void run() {
     try {
-      int j = 0;
-      while (j != numbers.size()) {
+      while (!Thread.currentThread().isInterrupted()) {
         synchronized (monitor) {
           monitor.wait();
-          for (int idThread = 0; idThread < numOfThreads; idThread++) {
-            if (j == numbers.size()) {
+          for (LinkedBlockingQueue<Runnable> task : tasks) {
+            if (futureTasks.isEmpty()) {
               break;
             }
-            int finalJ = j;
-            futureTasks[finalJ] = new FutureTask<>(
-                () -> !PrimeNumberChecker.isPrime(numbers.get(finalJ)));
-            tasks[idThread].put(futureTasks[finalJ]);
-            j++;
+            task.put(futureTasks.take());
           }
         }
       }
     } catch (InterruptedException e) {
-      throw new RuntimeException(e);
+      Thread.currentThread().interrupt();
     }
   }
 }
