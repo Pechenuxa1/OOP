@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class SingleThreadedComputation {
 
-  public static boolean isNonPrimeNumber(ArrayList<Integer> numbers) {
+  public boolean isNonPrimeNumber(ArrayList<Integer> numbers) {
     for (Integer number : numbers) {
       if (!PrimeNumberChecker.isPrime(number)) {
         return true;
