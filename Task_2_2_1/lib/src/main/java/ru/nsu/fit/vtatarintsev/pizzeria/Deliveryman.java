@@ -3,30 +3,49 @@ package ru.nsu.fit.vtatarintsev.pizzeria;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class Deliveryman implements Runnable {
+public class Deliveryman extends Worker implements Consumer  {
 
   List<Integer> trunk;
-  int capacity;
+  int trunkCapacity;
   BlockingQueue<Integer> storage; //storage is ArrayBlockingQueue потому что ограниченный размер
+  LinkedBlockingQueue<String> messageQueue;
+  int deliveryTime;
 
-  public Deliveryman(BlockingQueue<Integer> storage, int capacity) {
+  public Deliveryman(BlockingQueue<Integer> storage, int trunkCapacity, LinkedBlockingQueue<String> messageQueue) {
     this.storage = storage;
-    this.capacity = capacity;
-    this.trunk = new ArrayList<>(capacity);
+    this.trunkCapacity = trunkCapacity;
+    this.trunk = new ArrayList<>(trunkCapacity);
+    this.messageQueue = messageQueue;
   }
-
 
   @Override
   public void run() {
+    for (Integer orderNumber : trunk) {
+      orderNumber = takeOrder();
+    }
+    for(Integer orderNumber : trunk) {
+      try {
+        messageQueue.put("[ " + orderNumber + " ], " + "[Order is delivered]");
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    for (Integer orderNumber : trunk) {
+      try {
+        Thread.sleep(deliveryTime);
+        messageQueue.put("[ " + orderNumber + " ], " + "[Order completed]");
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  @Override
+  public int takeOrder() {
     try {
-      for (Integer orderNumber : trunk) {
-        orderNumber = storage.take();
-        System.out.println("[ " + orderNumber + " ], " + "[Order is delivered]");
-      }
-      for (Integer orderNumber : trunk) {
-        System.out.println("[ " + orderNumber + " ], " + "[Order completed]");
-      }
+      return storage.take();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }

@@ -3,19 +3,28 @@ package ru.nsu.fit.vtatarintsev.pizzeria;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Pizzeria {
+public class Pizzeria implements Producer {
 
-  static int orderNumber = 0;
-  static BlockingQueue<Integer> orders;
+  int orderNumber = 0;
+  BlockingQueue<Integer> orders;
+  LinkedBlockingQueue<String> messageQueue;
 
-  public Pizzeria(BlockingQueue<Integer> orders) {
-    Pizzeria.orders = orders;
+  public Pizzeria(BlockingQueue<Integer> orders, LinkedBlockingQueue<String> messageQueue) {
+    this.orders = orders;
+    this.messageQueue = messageQueue;
   }
 
-  public static synchronized void orderPizza() throws InterruptedException {
+  public synchronized void orderPizza(String order) throws InterruptedException {
     orderNumber += 1;
-    System.out.println("[ " + orderNumber + " ], " + "[Order is accepted]");
-    orders.put(orderNumber);
+    putOrder(orderNumber);
+    messageQueue.put("[ " + orderNumber + " ], " + "[Order is accepted]");
   }
-
+  @Override
+  public void putOrder(Object order) {
+    try {
+      orders.put((Integer) order);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
