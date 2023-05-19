@@ -6,22 +6,17 @@ package ru.nsu.fit.vtatarintsev.pizzeria;
 public class Client implements Runnable {
 
   int waiting;
-  int numOfPizzas;
   Pizzeria pizzeria;
-  public Client(int numOfPizzas, Pizzeria pizzeria) {
-    this.numOfPizzas = numOfPizzas;
+
+  public Client(Pizzeria pizzeria) {
     this.pizzeria = pizzeria;
   }
 
   @Override
   public void run() {
     try {
-      while(numOfPizzas > 0) {
-        Thread.sleep(waiting);
-        pizzeria.orderPizza("Pizza");
-        numOfPizzas -= 1;
-      }
-      pizzeria.orderPizza("No pizza");
+      Thread.sleep(waiting);
+      pizzeria.orderPizza();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
