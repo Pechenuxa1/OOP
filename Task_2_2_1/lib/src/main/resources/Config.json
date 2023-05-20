@@ -1,0 +1,15 @@
+{
+  "NumBakers": 3,
+  "CookingTimeInMs": [
+    1000,
+    2000,
+    3000
+  ],
+  "NumDeliverymen": 3,
+  "TrunkCapacity": [
+    1,
+    2,
+    3
+  ],
+  "StorageCapacity": 3
+}

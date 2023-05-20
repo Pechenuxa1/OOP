@@ -3,9 +3,8 @@
  */
 package ru.nsu.fit.vtatarintsev.pizzeria;
 
-public class Client implements Runnable {
+public class Client extends Thread {
 
-  int waiting;
   Pizzeria pizzeria;
 
   public Client(Pizzeria pizzeria) {
@@ -15,7 +14,6 @@ public class Client implements Runnable {
   @Override
   public void run() {
     try {
-      Thread.sleep(waiting);
       pizzeria.orderPizza();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);

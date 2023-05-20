@@ -43,7 +43,7 @@ public class Deliveryman extends Worker implements Consumer {
             Thread.currentThread().interrupt();
             break;
           }
-          Thread.sleep(deliveryTime);
+          //Thread.sleep(deliveryTime);
           messageQueue.put("[ " + orderNumber + " ], " + "[Order completed]");
         }
       }

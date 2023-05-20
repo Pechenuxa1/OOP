@@ -5,10 +5,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Logger extends Thread {
 
-  LinkedBlockingQueue<String> messageQueue;
+  BlockingQueue<String> messageQueue;
   String message;
 
-  public Logger(LinkedBlockingQueue<String> messageQueue) {
+  public Logger(BlockingQueue<String> messageQueue) {
     this.messageQueue = messageQueue;
   }
 
