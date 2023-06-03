@@ -17,10 +17,6 @@ public class Client extends Thread {
 
   @Override
   public void run() {
-    try {
-      pizzeria.orderPizza();
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+    pizzeria.orderPizza();
   }
 }
