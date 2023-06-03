@@ -6,25 +6,32 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Pizzeria implements Producer {
+/**
+ * The class implements the work of the pizzeria.
+ */
+public class Pizzeria {
 
-  int orderNumber = 0;
-  BlockingQueue<Integer> orders;
-  BlockingQueue<String> messageQueue;
-  List<Baker> bakers;
-  List<Deliveryman> deliverymen;
-  BlockingQueue<Integer> storage;
-  Logger logger;
-  Configuration config;
-  List<Integer> cookingTime;
-  List<Integer> trunkCapacity;
-  int numBakers;
-  int numDeliverymen;
-  int storageCapacity;
+  private int orderNumber = 0;
+  private final BlockingQueue<Integer> orders;
+  private final BlockingQueue<String> messageQueue;
+  private final List<Baker> bakers;
+  private final List<Deliveryman> deliverymen;
+  private final BlockingQueue<Integer> storage;
+  private final Logger logger;
+  private final List<Integer> cookingTime;
+  private final List<Integer> trunkCapacity;
+  private final int numBakers;
+  private final int numDeliverymen;
+
+  /**
+   * Constructor for defining pizzeria parameters.
+   *
+   * @param configFileName json file to load pizzeria parameters
+   */
   public Pizzeria(String configFileName) {
-    config = new Configuration(configFileName);
+    Configuration config = new Configuration(configFileName);
     numBakers = config.getNumBakers();
-    storageCapacity = config.getStorageCapacity();
+    final int storageCapacity = config.getStorageCapacity();
     numDeliverymen = config.getNumDeliverymen();
     cookingTime = config.getCookingTime();
     trunkCapacity = config.getTrunkCapacity();
@@ -62,22 +69,40 @@ public class Pizzeria implements Producer {
     }
   }
 
-  public synchronized void orderPizza() throws InterruptedException {
-    orderNumber += 1;
-    messageQueue.put("[ " + orderNumber + " ], " + "[Order is accepted]");
-    putOrder(orderNumber);
+  /**
+   * The method for creating an order.
+   */
+  public synchronized void orderPizza() {
+    try {
+      orderNumber += 1;
+      messageQueue.put("[ " + orderNumber + " ], " + "[Order is accepted]");
+      orders.put(orderNumber);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  public void createPoisonPillOrder() {
+  /**
+   * The method to shut down pizzeria.
+   */
+  public void finishWork() {
     orderNumber = 0;
     finishBakers();
     finishDeliverymen();
+    finishLogger();
   }
 
   private void finishBakers() {
     for (Baker baker : bakers) {
       try {
         orders.put(orderNumber);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    for (Baker baker : bakers) {
+      try {
+        baker.join();
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
@@ -92,12 +117,19 @@ public class Pizzeria implements Producer {
         throw new RuntimeException(e);
       }
     }
+    for (Deliveryman deliveryman : deliverymen) {
+      try {
+        deliveryman.join();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
-  @Override
-  public void putOrder(Object orderNumber) {
+  private void finishLogger() {
     try {
-      orders.put((Integer) orderNumber);
+      messageQueue.put("stop");
+      logger.join();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }

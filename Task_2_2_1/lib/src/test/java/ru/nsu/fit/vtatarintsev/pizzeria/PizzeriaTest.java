@@ -3,6 +3,7 @@
  */
 package ru.nsu.fit.vtatarintsev.pizzeria;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -11,14 +12,14 @@ class PizzeriaTest {
 
   @Test
   void pizzeriaTest() {
-    Pizzeria pizzeria = new Pizzeria("C:\\Rep\\OOP\\Task_2_2_1\\lib\\src\\main\\resources\\Config.json");
+    URL path = getClass().getClassLoader().getResource("Config.json");
+    assert path != null;
+    Pizzeria pizzeria = new Pizzeria(path.getPath());
     pizzeria.startWork();
     List<Client> clients = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
       clients.add(new Client(pizzeria));
-    }
-    for (Client client : clients) {
-      client.start();
+      clients.get(i).start();
     }
     for (Client client : clients) {
       try {
@@ -26,7 +27,7 @@ class PizzeriaTest {
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
-      pizzeria.createPoisonPillOrder();
     }
+    pizzeria.finishWork();
   }
 }

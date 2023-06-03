@@ -2,18 +2,25 @@ package ru.nsu.fit.vtatarintsev.pizzeria;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * The class implements the work of the deliveryman.
+ */
 public class Deliveryman extends Worker implements Consumer {
 
-  List<Integer> trunk;
-  int trunkCapacity;
-  BlockingQueue<Integer> storage; //storage is ArrayBlockingQueue потому что ограниченный размер
-  BlockingQueue<String> messageQueue;
-  int deliveryTime;
+  private final List<Integer> trunk;
+  private final int trunkCapacity;
+  private final BlockingQueue<Integer> storage;
+  private final BlockingQueue<String> messageQueue;
 
+  /**
+   * Constructor for create a deliveryman.
+   *
+   * @param storage queue storage from where the deliveryman takes the order for delivery.
+   * @param trunkCapacity the number of pizzas that the deliveryman can take from the storage.
+   * @param messageQueue queue for displaying messages about the status of the order.
+   */
   public Deliveryman(BlockingQueue<Integer> storage, int trunkCapacity,
       BlockingQueue<String> messageQueue) {
     this.storage = storage;
@@ -26,8 +33,9 @@ public class Deliveryman extends Worker implements Consumer {
   public void run() {
     try {
       while (!Thread.currentThread().isInterrupted()) {
-        for (Integer orderNumber : trunk) {
-          orderNumber = takeOrder();
+        for (int i = 0; i < trunkCapacity; i++) {
+          int orderNumber = takeOrder();
+          trunk.add(orderNumber);
           if (orderNumber == 0) {
             break;
           }
@@ -43,9 +51,11 @@ public class Deliveryman extends Worker implements Consumer {
             Thread.currentThread().interrupt();
             break;
           }
-          //Thread.sleep(deliveryTime);
+          int deliveryTime = (int) (Math.random() * 1000);
+          Thread.sleep(deliveryTime);
           messageQueue.put("[ " + orderNumber + " ], " + "[Order completed]");
         }
+        trunk.clear();
       }
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
@@ -53,7 +63,7 @@ public class Deliveryman extends Worker implements Consumer {
   }
 
   @Override
-  public int takeOrder() {
+  public synchronized int takeOrder() {
     try {
       return storage.take();
     } catch (InterruptedException e) {

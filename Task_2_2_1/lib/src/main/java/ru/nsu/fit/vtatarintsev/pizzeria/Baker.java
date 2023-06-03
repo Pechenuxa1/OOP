@@ -1,16 +1,25 @@
 package ru.nsu.fit.vtatarintsev.pizzeria;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * The class implements the work of the baker.
+ */
 public class Baker extends Worker implements Consumer, Producer {
 
-  int cookingTime;
-  BlockingQueue<Integer> orders;
-  BlockingQueue<String> messageQueue;
-  int orderNumber;
-  BlockingQueue<Integer> storage; //storage is ArrayBlockingQueue потому что ограниченный размер
+  private final int cookingTime;
+  private final BlockingQueue<Integer> orders;
+  private final BlockingQueue<String> messageQueue;
+  private final BlockingQueue<Integer> storage;
 
+  /**
+   * Constructor for create a baker.
+   *
+   * @param cookingTime constant pizza cooking time for the baker.
+   * @param orders queue from which the baker takes orders.
+   * @param storage queue storage where the baker puts the order after cooking.
+   * @param messageQueue queue for displaying messages about the status of the order.
+   */
   public Baker(int cookingTime, BlockingQueue<Integer> orders, BlockingQueue<Integer> storage,
       BlockingQueue<String> messageQueue) {
     this.cookingTime = cookingTime;
@@ -23,7 +32,7 @@ public class Baker extends Worker implements Consumer, Producer {
   public void run() {
     try {
       while (!Thread.currentThread().isInterrupted()) {
-        orderNumber = takeOrder();
+        int orderNumber = takeOrder();
         if (orderNumber == 0) {
           Thread.currentThread().interrupt();
         } else {
@@ -39,7 +48,7 @@ public class Baker extends Worker implements Consumer, Producer {
   }
 
   @Override
-  public int takeOrder() {
+  public synchronized int takeOrder() {
     try {
       return orders.take();
     } catch (InterruptedException e) {
@@ -48,7 +57,7 @@ public class Baker extends Worker implements Consumer, Producer {
   }
 
   @Override
-  public void putOrder(Object orderNumber) {
+  public synchronized void putOrder(Object orderNumber) {
     try {
       storage.put((Integer) orderNumber);
     } catch (InterruptedException e) {

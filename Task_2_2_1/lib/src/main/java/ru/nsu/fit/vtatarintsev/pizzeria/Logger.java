@@ -1,12 +1,13 @@
 package ru.nsu.fit.vtatarintsev.pizzeria;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * The class for displaying messages from messageQueue.
+ */
 public class Logger extends Thread {
 
-  BlockingQueue<String> messageQueue;
-  String message;
+  private final BlockingQueue<String> messageQueue;
 
   public Logger(BlockingQueue<String> messageQueue) {
     this.messageQueue = messageQueue;
@@ -16,8 +17,12 @@ public class Logger extends Thread {
   public void run() {
     while (!Thread.currentThread().isInterrupted()) {
       try {
-        message = messageQueue.take();
-        System.out.println(message);
+        String message = messageQueue.take();
+        if (message.equals("stop")) {
+          Thread.currentThread().interrupt();
+        } else {
+          System.out.println(message);
+        }
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
