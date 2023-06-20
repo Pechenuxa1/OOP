@@ -6,13 +6,18 @@ package ru.nsu.fit.vtatarintsev.snake;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableNumberValue;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
@@ -24,9 +29,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
@@ -34,14 +37,15 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import org.checkerframework.checker.units.qual.C;
 
 public class Main extends Application {
 
-  private static final int WIDTH = 600;
-  private static final int HEIGHT = WIDTH;
+  private static double WIDTH = 600;
+  private static double HEIGHT = WIDTH;
   private static int ROWS = 20;
   private static int COLUMNS = ROWS;
-  private static final int SQUARE_SIZE = WIDTH / ROWS;
+  private static double SQUARE_SIZE = WIDTH / COLUMNS;
 
   private static final int RIGHT = 0;
   private static final int LEFT = 1;
@@ -57,12 +61,19 @@ public class Main extends Application {
   private boolean gameOver;
   private int currentDirection;
   private int score = 0;
-  BorderPane root = new BorderPane();
+  StackPane root = new StackPane();
   Scene scene;
   VBox menuBox;
   int easy;
   int hard;
   private final Canvas canvas = new Canvas(WIDTH, HEIGHT);
+  private final Timeline timeline = new Timeline();
+  private boolean turn;
+  StackPane pane = new StackPane();
+  Button backToMainMenu = new Button("Back To The Main Menu");
+  KeyFrame keyFrame;
+  boolean pause = false;
+  Pane canvasPane = new Pane();
 
   @Override
   public void start(Stage primaryStage) {
@@ -76,36 +87,95 @@ public class Main extends Application {
     Button exit = new Button("Exit");
     exit.setPrefSize(100, 20);
     menu.getChildren().addAll(start, settings, exit);
-    root.setCenter(menu);
+    //root.setCenter(menu);
+    root.getChildren().add(menu);
     scene = new Scene(root, WIDTH, HEIGHT);
+
+    pane.getChildren().add(backToMainMenu);
+    pane.setLayoutX(WIDTH / 2.8);
+    pane.setLayoutY(HEIGHT / 1.9);
+    backToMainMenu.setOnAction(event -> {
+      root.getChildren().removeAll(canvas, pane);
+      root.getChildren().add(menu);
+      timeline.stop();
+      timeline.getKeyFrames().remove(keyFrame);
+      pause = false;
+    });
+
+    ChangeListener<Number> resizeListener = (observable, oldValue, newValue) -> {
+      //double newWidth = root.getWidth();
+      //double newHeight = root.getHeight();
+
+      double scaleX = scene.getWidth() / canvas.getWidth();
+      double scaleY = scene.getHeight() / canvas.getHeight();
+
+      double minScale = Math.min(scaleX, scaleY);
+      canvas.setScaleX(minScale);
+      canvas.setScaleY(minScale);
+      StackPane.setAlignment(canvas, Pos.CENTER);
+      //double translateX = (rootBounds.getWidth() - canvas.getWidth() * minScale) / 2;
+      //double translateY = (rootBounds.getHeight() - canvas.getHeight() * minScale) / 2;
+      //canvas.setTranslateX(translateX);
+      //canvas.setTranslateY(translateY);
+
+      //canvas.setScaleX(scaleX);
+      //canvas.setScaleY(scaleY);
+      //canvas.setTranslateX((root.getWidth() - canvas.getWidth() * minScale) / 2);
+      //canvas.setTranslateY((root.getHeight() - canvas.getHeight() * minScale) / 2);
+
+
+      //canvas.setWidth(newWidth);
+      //canvas.setHeight(newHeight);
+      //WIDTH = (int) newWidth;
+      //HEIGHT = (int) newHeight;
+      //SQUARE_SIZE = WIDTH / COLUMNS;
+    };
+
+    scene.widthProperty().addListener(resizeListener);
+    scene.heightProperty().addListener(resizeListener);
+
+    /*scene.widthProperty().addListener((observable, oldValue, newValue) -> {
+      canvas.setScaleX(scene.getWidth() / root.getWidth());
+    });
+    scene.heightProperty().addListener((observable, oldValue, newValue) -> {
+      canvas.setScaleY(scene.getHeight() / root.getHeight());
+    });*/
 
     gc = canvas.getGraphicsContext2D();
     scene.setOnKeyPressed(event -> {
       KeyCode code = event.getCode();
       if (code == KeyCode.RIGHT || code == KeyCode.D) {
-        if (currentDirection != LEFT) {
+        if (currentDirection != LEFT && turn) {
           currentDirection = RIGHT;
+          turn = false;
         }
       } else if (code == KeyCode.LEFT || code == KeyCode.A) {
-        if (currentDirection != RIGHT) {
+        if (currentDirection != RIGHT && turn) {
           currentDirection = LEFT;
+          turn = false;
         }
       } else if (code == KeyCode.UP || code == KeyCode.W) {
-        if (currentDirection != DOWN) {
+        if (currentDirection != DOWN && turn) {
           currentDirection = UP;
+          turn = false;
         }
       } else if (code == KeyCode.DOWN || code == KeyCode.S) {
-        if (currentDirection != UP) {
+        if (currentDirection != UP && turn) {
           currentDirection = DOWN;
+          turn = false;
         }
+      } else if (code == KeyCode.ESCAPE && !pause) {
+        timeline.pause();
+        root.getChildren().add(pane);
+        StackPane.setAlignment(backToMainMenu, Pos.CENTER);
+        StackPane.setAlignment(pane, Pos.CENTER);
+        pause = true;
+      } else if (code == KeyCode.ESCAPE && pause) {
+        root.getChildren().remove(pane);
+        timeline.play();
+        pause = false;
       }
     });
-
-    for (int i = 0; i < 3; i++) {
-      snakeBody.add(new Point(5, ROWS / 2));
-    }
-    snakeHead = snakeBody.get(0);
-    generateFood(gc);
 
     Text gameDifficulty = new Text("Game Difficulty");
     Slider slider = new Slider(1, 3, 1);
@@ -116,8 +186,14 @@ public class Main extends Application {
     primaryStage.setScene(scene);
     primaryStage.show();
     start.setOnAction(event -> {
+      score = 0;
+      currentDirection = RIGHT;
+      snakeBody.clear();
+      gc.clearRect(0, 0, WIDTH, HEIGHT);
       root.getChildren().remove(menu);
+      //root.setCenter(canvas);
       root.getChildren().add(canvas);
+      StackPane.setAlignment(canvas, Pos.CENTER);
       //scene.setRoot(canvas.getParent());
       int time = 300;
       if (slider.getValue() == 1d) {
@@ -138,7 +214,16 @@ public class Main extends Application {
         ROWS = 30;
         COLUMNS = 30;
       }
-      Timeline timeline = new Timeline(new KeyFrame(Duration.millis(time), e -> run(gc)));
+      SQUARE_SIZE = WIDTH / COLUMNS;
+      int x = 5;
+      for (int i = 0; i < 3; i++) {
+        snakeBody.add(new Point(x, ROWS / 2));
+        x -= 1;
+      }
+      snakeHead = snakeBody.get(0);
+      generateFood(gc);
+      keyFrame = new KeyFrame(Duration.millis(time), e -> run(gc));
+      timeline.getKeyFrames().add(keyFrame);
       timeline.setCycleCount(Animation.INDEFINITE);
       timeline.play();
       //startGame(primaryStage);
@@ -213,12 +298,14 @@ public class Main extends Application {
     settingsMenu.setAlignment(Pos.CENTER);
     settings.setOnAction(event -> {
       root.getChildren().remove(menu);
-      root.setCenter(settingsMenu);
+      //root.setCenter(settingsMenu);
+      root.getChildren().add(settingsMenu);
     });
 
     back.setOnAction(event -> {
       root.getChildren().remove(settingsMenu);
-      root.setCenter(menu);
+      //root.setCenter(menu);
+      root.getChildren().add(menu);
     });
 
     exit.setOnAction(event -> {
@@ -226,48 +313,18 @@ public class Main extends Application {
     });
   }
 
-  public void startGame(Stage primaryStage) {
-    scene.setRoot(canvas.getParent());
-    //primaryStage.setScene(scene);
-    //primaryStage.show();
-    gc = canvas.getGraphicsContext2D();
-
-    scene.setOnKeyPressed(event -> {
-      KeyCode code = event.getCode();
-      if (code == KeyCode.RIGHT || code == KeyCode.D) {
-        if (currentDirection != LEFT) {
-          currentDirection = RIGHT;
-        }
-      } else if (code == KeyCode.LEFT || code == KeyCode.A) {
-        if (currentDirection != RIGHT) {
-          currentDirection = LEFT;
-        }
-      } else if (code == KeyCode.UP || code == KeyCode.W) {
-        if (currentDirection != DOWN) {
-          currentDirection = UP;
-        }
-      } else if (code == KeyCode.DOWN || code == KeyCode.S) {
-        if (currentDirection != UP) {
-          currentDirection = DOWN;
-        }
-      }
-    });
-
-    for (int i = 0; i < 3; i++) {
-      snakeBody.add(new Point(5, ROWS / 2));
-    }
-    snakeHead = snakeBody.get(0);
-    generateFood(gc);
-    Timeline timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(gc)));
-    timeline.setCycleCount(Animation.INDEFINITE);
-    timeline.play();
-  }
 
   private void run(GraphicsContext gc) {
+    turn = true;
     if (gameOver) {
       gc.setFill(Color.RED);
       gc.setFont(new Font("Digital-7", 70));
-      gc.fillText("Game Over", WIDTH / 5, HEIGHT / 2);
+      gc.fillText("Game Over", WIDTH / 5.0, HEIGHT / 2.3);
+
+      root.getChildren().add(pane);
+      timeline.stop();
+      timeline.getKeyFrames().remove(keyFrame);
+      gameOver = false;
       return;
     }
     drawBackground(gc);
@@ -290,8 +347,8 @@ public class Main extends Application {
   }
 
   private void drawBackground(GraphicsContext gc) {
-    for (int i = 0; i < ROWS; i++) {
-      for (int j = 0; j < COLUMNS; j++) {
+    for (int i = 0; i < COLUMNS; i++) {
+      for (int j = 0; j < ROWS; j++) {
         if ((i + j) % 2 == 0) {
           gc.setFill(Color.rgb(170, 215, 81));
         } else {
@@ -369,13 +426,15 @@ public class Main extends Application {
       }
     }
   }
+
   private void eatFood() {
-    if(snakeHead.getX() == foodX && snakeHead.getY() == foodY) {
+    if (snakeHead.getX() == foodX && snakeHead.getY() == foodY) {
       snakeBody.add(new Point(-1, -1));
       generateFood(gc);
       score += 5;
     }
   }
+
   private void drawScore() {
     gc.setFill(Color.WHITE);
     gc.setFont(new Font("Digital-7", 25));
